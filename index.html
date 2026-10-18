@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d2039">
+<meta name="description" content="適合手機使用的 16:9 多頁簡報編輯器，支援圖文排版、觸控拖曳、PDF 與 PNG 匯出。">
+<title>SlideLab｜簡報排版練習室</title>
+<style>
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei",sans-serif;color:#14233a;background:#f3f6fa;font-synthesis:none;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer;touch-action:manipulation}
+button:disabled{opacity:.42;cursor:not-allowed}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #5aa5fb;outline-offset:2px}
+body{margin:0;min-height:100svh}
+.topbar{background:#0d2039;color:#fff;padding:12px max(14px,env(safe-area-inset-right)) 12px max(14px,env(safe-area-inset-left));display:flex;align-items:center;justify-content:space-between;gap:9px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brandmark{background:#60b4c6;width:34px;height:34px;border-radius:10px;color:#10293d;display:grid;place-items:center;font-size:20px;font-weight:900;flex:none}
+.brandtitle{font-size:17px;font-weight:800;letter-spacing:-.3px;white-space:nowrap}
+.brandsub{font-size:11px;color:#bdd2e6;margin-top:1px}
+.header-actions{display:flex;gap:6px;align-items:center}
+button{border:0;border-radius:10px;padding:9px 12px;white-space:nowrap}
+.btn{background:#fff;border:1px solid #d8e1ed;color:#183251;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:41px}
+.btn:active,.tool:active{transform:translateY(1px)}
+.btn.primary{background:#2378dc;border-color:#2378dc;color:#fff}
+.btn.dark{background:#1c3d61;color:#fff;border-color:#31577f}
+.btn.quiet{background:#f0f5fa}
+.btn.danger{color:#a3233a;background:#fff4f5;border-color:#f3cdd2}
+.btn.small{font-size:12px;min-height:34px;padding:6px 9px}
+.iconbtn{font-weight:800;min-width:36px;padding:8px 10px}
+main{max-width:1320px;margin:0 auto;padding:16px 16px 50px}
+.appgrid{display:grid;grid-template-columns:minmax(0,1fr) 318px;gap:16px;align-items:start}
+.workpanel,.sidepanel{background:white;border:1px solid #e2e8ef;border-radius:18px;box-shadow:0 8px 22px rgba(33,63,102,.055);min-width:0}
+.workpanel{overflow:hidden}
+.projectbar{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #e8edf4}
+.projectname{width:100%;max-width:440px;background:#f7f9fc;border:1px solid #dbe4ee;border-radius:9px;padding:10px 11px;color:#213750;font-size:14px;font-weight:700}
+.save-state{font-size:12px;color:#637890;white-space:nowrap;margin-left:auto}
+.stageouter{padding:18px;background:#e8eef5}
+.canvaswrap{position:relative;width:100%;aspect-ratio:16/9;margin:0 auto;background:#fff;border-radius:5px;box-shadow:0 8px 22px #1d36553d;overflow:hidden;touch-action:none;user-select:none}
+#stage{width:100%;height:100%;display:block;touch-action:none;user-select:none}
+.stagehint{font-size:12px;color:#637890;display:flex;justify-content:space-between;gap:8px;padding-top:11px}
+.toolstrip{display:flex;gap:8px;overflow-x:auto;padding:12px 14px;scrollbar-width:thin;border-top:1px solid #dfe7f1}
+.tool{background:#edf4fb;border:1px solid #d8e6f4;color:#1b476c;min-width:84px;padding:10px 10px;border-radius:11px;display:grid;justify-items:center;gap:4px;font-size:12px;font-weight:750}
+.tool .symbol{font-size:21px;line-height:1.1}
+.tool.primarytool{background:#dff3f2;border-color:#b7dcdb;color:#13545a}
+.deckheader{padding:15px 16px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.deckheader h2{font-size:14px;margin:0}
+.deckheader span{font-size:12px;color:#718298}
+.filmstrip{padding:0 16px 16px;display:flex;gap:10px;overflow-x:auto;scrollbar-width:thin;scroll-snap-type:x proximity}
+.slideitem{min-width:118px;width:118px;flex:none;scroll-snap-align:start}
+.thumbbutton{width:118px;height:69px;display:block;overflow:hidden;background:#f8fbfe;border:2px solid #cfd9e6;border-radius:8px;padding:0}
+.thumbbutton.active{border:3px solid #1d79db;box-shadow:0 0 0 2px #c8e4ff}
+.thumbbutton canvas{width:100%;height:100%;display:block}
+.thumblabel{font-size:11px;color:#5b6f86;margin-top:6px;text-align:center;font-weight:600}
+.addslide{width:116px;height:69px;border:1.5px dashed #96b3cf;border-radius:9px;color:#276baa;background:#f4faff;display:grid;place-items:center;align-content:center;gap:2px;font-size:12px;font-weight:700}
+.addslide strong{font-size:24px;line-height:1}
+.sidepanel{padding:16px;position:sticky;top:12px}
+.panelheading{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:10px}
+.panelheading h2{font-size:15px;margin:0;letter-spacing:-.2px}
+.chip{display:inline-block;background:#eaf3fc;color:#28618e;border-radius:40px;padding:5px 8px;font-size:11px;font-weight:700}
+.settings{display:grid;gap:12px}
+.fieldlabel{font-size:12px;display:block;font-weight:760;color:#47617c;margin-bottom:6px}
+.input,.textarea,.selector{display:block;width:100%;border:1px solid #d7e0ed;border-radius:10px;background:#fbfdff;color:#152d4a;padding:10px;font-size:14px}
+.textarea{min-height:86px;resize:vertical;line-height:1.45}
+.colorrow{display:flex;align-items:center;gap:10px}
+.colorinput{height:39px;width:56px;min-width:56px;border:1px solid #d0dbe8;border-radius:10px;padding:3px;background:#fff}
+.rangerow{display:flex;align-items:center;gap:10px}
+.rangerow input{width:100%;accent-color:#2378dc;height:26px}
+.numfield{width:62px;min-width:62px;padding:8px 5px;border-radius:8px;border:1px solid #dae4ef;text-align:center;color:#173858;background:#fff}
+.buttonrow{display:flex;gap:7px;flex-wrap:wrap}
+.buttonrow .btn{flex:1 1 auto}
+.hr{height:1px;background:#e8edf3;margin:3px 0}
+.note{font-size:12px;line-height:1.6;color:#687b90}
+.info{background:#eef7fa;color:#2b5667;padding:12px;border-radius:11px;font-size:12px;line-height:1.7}
+.bottomdock{display:none}
+.modal{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:16px;background:#0b1d36ad;overscroll-behavior:contain}
+.modal.visible{display:flex}
+.dialog{background:#fff;width:min(620px,100%);max-height:min(85svh,760px);border-radius:18px;overflow:auto;box-shadow:0 30px 80px #0004;padding:20px}
+.modalhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.modalhead h2{font-size:20px;margin:0}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.layoutcard{padding:8px;text-align:left;background:#f8fbff;border:1px solid #d5e2f0;border-radius:12px;white-space:normal}
+.layoutcard canvas{width:100%;aspect-ratio:16/9;display:block;border-radius:6px;background:#fff}
+.layoutcard .cardtitle{display:block;font-size:13px;font-weight:800;margin:9px 2px 2px}
+.layoutcard .cardsub{display:block;font-size:11px;color:#657a90;margin:0 2px 3px}
+.swatches{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.swatch{width:100%;aspect-ratio:1;border:2px solid #e3e7ef;border-radius:12px;padding:0}
+.swatch.active{outline:3px solid #257edd;outline-offset:2px}
+.previewdialog{width:min(1060px,100%)}
+.previewcanvas{width:100%;height:auto;aspect-ratio:16/9;border:1px solid #d6e1ee;display:block;background:#fff}
+.previewnav{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:13px}
+.help p,.help li{font-size:14px;color:#49627a;line-height:1.75}
+.help ul{padding-left:21px}
+.toast{position:fixed;bottom:calc(22px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:#0c2845;color:#fff;z-index:40;border-radius:12px;padding:11px 17px;font-size:13px;box-shadow:0 10px 28px #102d4b42;opacity:0;pointer-events:none;transition:opacity .2s;max-width:85vw;text-align:center}
+.toast.visible{opacity:1}
+.hiddens{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;overflow:hidden}
+@media(max-width:920px){.appgrid{grid-template-columns:1fr}.sidepanel{position:static}.stageouter{padding:12px}.topbar{padding:11px 13px}.brandsub{display:none}.projectbar{padding:10px 12px}.sidepanel{padding:14px}.workpanel,.sidepanel{border-radius:14px}}
+@media(max-width:520px){main{padding:10px 9px 30px}.brandtitle{font-size:15px}.brandmark{width:31px;height:31px}.header-actions .btn{font-size:12px;min-height:37px;padding:8px 9px}.header-actions #helpBtn{display:none}.projectbar{gap:7px}.projectname{font-size:13px}.save-state{font-size:11px}.stagehint{font-size:11px}.toolstrip{padding:10px;gap:7px}.tool{min-width:74px;font-size:11px;padding:9px 7px}.tool .symbol{font-size:19px}.cards{gap:9px}.dialog{padding:15px}.modal{padding:10px}.bottomdock{display:block;position:sticky;bottom:0;z-index:5;background:#f3f6faed;padding:6px 10px calc(6px + env(safe-area-inset-bottom));border-top:1px solid #dce7f1}.bottomdock .btn{width:100%}.sidepanel{margin-bottom:12px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+ <div class="brand"><div class="brandmark">S</div><div><div class="brandtitle">SlideLab <span style="font-weight:500;font-size:12px;color:#a4c7d9">簡報排版練習室</span></div><div class="brandsub">手機就能做，10 頁以內的 16:9 簡報</div></div></div>
+ <div class="header-actions"><button class="btn dark small" id="helpBtn">使用說明</button><button class="btn primary small" id="exportPdfTop">↓ 整份 PDF</button></div>
+</header>
+<main>
+ <div class="appgrid">
+  <section class="workpanel" aria-label="簡報編輯區">
+   <div class="projectbar"><input id="projectName" class="projectname" aria-label="簡報名稱" maxlength="50" placeholder="輸入簡報名稱"><span class="save-state" id="saveStatus">準備就緒</span></div>
+   <div class="stageouter"><div class="canvaswrap"><canvas id="stage" width="1280" height="720" aria-label="投影片畫布，點擊選取物件，拖曳移動；右下角圓點可縮放"></canvas></div><div class="stagehint"><span id="stageCount">第 1 / 1 頁</span><span>點選物件調整・拖曳移動・角落縮放</span></div></div>
+   <div class="toolstrip" aria-label="編輯工具">
+    <button class="tool primarytool" id="addText"><span class="symbol">T＋</span>文字方塊</button>
+    <button class="tool" id="addImage"><span class="symbol">▧</span>加入圖片</button>
+    <button class="tool" id="addShape"><span class="symbol">▰</span>加入色塊</button>
+    <button class="tool" id="chooseLayout"><span class="symbol">▦</span>版型選擇</button>
+    <button class="tool" id="chooseBg"><span class="symbol">◉</span>背景顏色</button>
+    <button class="tool" id="undoBtn"><span class="symbol">↶</span>復原</button>
+    <button class="tool" id="redoBtn"><span class="symbol">↷</span>重做</button>
+    <button class="tool" id="previewBtn"><span class="symbol">▶</span>預覽</button>
+   </div>
+   <div class="deckheader"><h2>投影片清單</h2><span id="deckCount">共 1 / 10 頁</span></div>
+   <div class="filmstrip" id="filmstrip" aria-label="投影片縮圖清單"></div>
+  </section>
+  <aside class="sidepanel" id="inspector"><div class="panelheading"><h2 id="panelTitle">投影片設定</h2><span class="chip" id="panelChip">整張投影片</span></div><div class="settings" id="panelFields"></div></aside>
+ </div>
+</main>
+<div class="bottomdock"><button class="btn primary" id="exportPdfBottom">↓ 匯出整份 PDF（16:9）</button></div>
+<input class="hiddens" type="file" id="imageInput" accept="image/*">
+<input class="hiddens" type="file" id="jsonInput" accept="application/json,.json">
+<div class="modal" id="layoutModal" role="dialog" aria-modal="true"><div class="dialog"><div class="modalhead"><h2>選擇排版練習版型</h2><button class="btn small" data-close="layoutModal">關閉 ✕</button></div><p class="note">選取後會「新增一頁」套用版型；原本投影片不會被覆蓋。</p><div class="cards" id="layoutCards"></div></div></div>
+<div class="modal" id="bgModal" role="dialog" aria-modal="true"><div class="dialog" style="max-width:410px"><div class="modalhead"><h2>投影片背景顏色</h2><button class="btn small" data-close="bgModal">關閉 ✕</button></div><div class="swatches" id="swatchGrid"></div><p class="note">背景顏色只會套用到目前這一頁。也可上傳圖片並設為滿版背景。</p></div></div></div>
+<div class="modal" id="previewModal" role="dialog" aria-modal="true"><div class="dialog previewdialog"><div class="modalhead"><h2>簡報預覽</h2><button class="btn small" data-close="previewModal">退出預覽 ✕</button></div><canvas class="previewcanvas" id="previewCanvas" width="1280" height="720"></canvas><div class="previewnav"><button class="btn" id="prevPreview">← 上一頁</button><span id="previewLabel" class="note">1 / 1</span><button class="btn" id="nextPreview">下一頁 →</button></div></div></div></div>
+<div class="modal" id="helpModal" role="dialog" aria-modal="true"><div class="dialog help"><div class="modalhead"><h2>開始使用 SlideLab</h2><button class="btn small" data-close="helpModal">關閉 ✕</button></div><p><b>這是離線可編輯的手機版簡報工具。</b>不必註冊帳號，也不需要上傳照片到外部伺服器。</p><ul><li>點「版型選擇」建立全圖像、半圖文、大字流、空白頁。</li><li>點選投影片上的物件後，直接拖曳移動，拖動四角的圓點縮放。</li><li>點到文字方塊後，可到下方的「物件設定」修改文字、字級、粗細及對齊。</li><li>每組最多 10 頁，可以複製、刪除、調整頁序；按「預覽」檢查整份。</li><li>完成後點「整份 PDF」下載，未來可再接上 Google 雲端硬碟收件。</li></ul><p><b>保存方式：</b>作品會嘗試自動儲存在這台裝置的瀏覽器；不同手機、無痕模式或清除網站資料可能讓作品無法恢復。建議使用「備份 JSON」保留可編輯檔，並匯出 PDF 繳交。</p><p><b>課堂提醒：</b>不要用無痕模式。若從 iPhone「檔案」App 開啟 HTML 無法正常互動，請把本檔部署到網頁空間，再用 Safari 或 Chrome 開啟。</p></div></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(()=>{'use strict';
+const W=1280,H=720,MAX_SLIDES=10;
+const $=id=>document.getElementById(id);
+const stage=$('stage'),c=stage.getContext('2d'),previewCanvas=$('previewCanvas');
+const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
+const clone=x=>JSON.parse(JSON.stringify(x));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const bgColors=['#FFFFFF','#F7F6F2','#EBF2F6','#DDEEEA','#FCE8D6','#F5E2EB','#11243A','#243C58','#204C59','#253E37','#272B37','#000000'];
+const makeText=(text,x,y,w,h,size=60,color='#18304d',opts={})=>({id:uid(),type:'text',text,x,y,w,h,size,color,bold:opts.bold??true,align:opts.align||'left'});
+const makePlace=(x,y,w,h)=>({id:uid(),type:'placeholder',x,y,w,h});
+function slideTemplate(key){
+ let s={id:uid(),bg:'#ffffff',name:key,objects:[]};
+ if(key==='blank')return s;
+ if(key==='full'){
+  s.bg='#14273F';s.objects=[makePlace(0,0,W,H),makeText('一句話說清楚重點',64,480,1120,120,75,'#FFFFFF'),makeText('全圖像｜以畫面吸引觀眾',68,620,980,55,28,'#FFFFFF',{bold:false})];
+ }else if(key==='split'){
+  s.bg='#F8FAFC';s.objects=[makePlace(648,0,632,720),makeText('圖像與文字的平衡',65,210,520,190,68,'#17334F'),makeText('把重要的內容留在畫面上，其他交給你的口語說明。',68,438,490,150,31,'#3D526A',{bold:false})];
+ }else if(key==='big'){
+  s.bg='#F6F5F1';s.objects=[makeText('少，就是多。',63,238,1160,255,119,'#132C48'),makeText('大字流｜讓一句話成為全場焦點',71,537,1060,78,31,'#5D7688',{bold:false})];
+ }else if(key==='title'){
+  s.bg='#18314D';s.objects=[makeText('請輸入你的簡報主題',93,242,1095,190,82,'#FFFFFF'),makeText('第 01 組｜簡報設計練習',97,476,990,90,30,'#C4DCE9',{bold:false})];
+ }else if(key==='quote'){
+  s.bg='#FFFFFF';s.objects=[makeText('重點不是你說了多少，\\n而是觀眾記住多少。'.replace('\\n','\n'),90,185,1100,305,84,'#1D3858'),makeText('用大量留白突顯觀點',95,563,970,75,31,'#607A8D',{bold:false})];
+ }
+ return s;
+}
+const templates=[['blank','空白頁','從零開始，自由排列'],['title','封面型','主題＋副標題'],['full','全圖像','大圖片＋一句重點'],['split','半圖文','圖片與文字並陳'],['big','大字流','強烈的大型文字'],['quote','觀點句','留白＋核心主張']];
+let project={title:'第 01 組｜簡報排版練習',slides:[slideTemplate('title')]};
+let active=0,selected=null,drag=null,history=[],future=[],imageCache=new Map(),toastTimeout=0,saveTimeout=0,db=null,lastTapTime=0,lastTapId=null,previewIndex=0;
+const getSlide=()=>project.slides[active];
+const getObj=()=>getSlide().objects.find(o=>o.id===selected);
+function toast(msg){const e=$('toast');e.textContent=msg;e.classList.add('visible');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>e.classList.remove('visible'),2400)}
+function snapshot(){history.push(clone({project,active}));if(history.length>18)history.shift();future=[];updateUndo();}
+function updateUndo(){$('undoBtn').disabled=history.length===0;$('redoBtn').disabled=future.length===0;}
+function commit(){draw();renderFilmstrip();scheduleSave();}
+function transact(fn){snapshot();fn();commit();}
+function undo(){if(!history.length)return;future.push(clone({project,active}));const state=history.pop();project=state.project;active=state.active;selected=null;syncProject();updateUndo();}
+function redo(){if(!future.length)return;history.push(clone({project,active}));const state=future.pop();project=state.project;active=state.active;selected=null;syncProject();updateUndo();}
+function drawPlace(ctx,o){ctx.save();ctx.fillStyle='#DDE7EF';ctx.fillRect(o.x,o.y,o.w,o.h);ctx.fillStyle='#CDDEE9';const sz=54;for(let y=o.y-100;y<o.y+o.h+100;y+=sz){ctx.beginPath();ctx.moveTo(o.x,y);ctx.lineTo(o.x+o.w,y+o.w*.34);ctx.lineWidth=12;ctx.strokeStyle='#d0dfe9';ctx.stroke();}
+ctx.fillStyle='#4E7189';ctx.textAlign='center';ctx.font='600 31px system-ui,sans-serif';ctx.fillText('點選此區，再上傳圖片',o.x+o.w/2,o.y+o.h/2);ctx.restore();}
+function fitCover(ctx,img,x,y,w,h){let r=Math.max(w/img.width,h/img.height);let iw=img.width*r,ih=img.height*r;ctx.drawImage(img,x+(w-iw)/2,y+(h-ih)/2,iw,ih)}
+function getImage(src){if(!src)return null;let entry=imageCache.get(src);if(entry)return entry.complete?entry:null;const img=new Image();imageCache.set(src,img);img.onload=()=>{draw();renderFilmstrip();if($('previewModal').classList.contains('visible'))drawPreview()};img.onerror=()=>{imageCache.delete(src);toast('這張圖片無法載入')};img.src=src;return img.complete?img:null;}
+function splitLines(ctx,txt,maxWidth){let result=[];for(const raw of String(txt||'').split('\n')){if(raw===''){result.push('');continue}let line='';const chunks=raw.match(/[A-Za-z0-9]+(?:[-'][A-Za-z0-9]+)*\s*|./gu)||[];for(const ch of chunks){if(ctx.measureText(line+ch).width>maxWidth && line){result.push(line.trimEnd());line=ch.trimStart();if(ctx.measureText(line).width>maxWidth){for(const c of Array.from(line)){if(ctx.measureText(line).width>maxWidth){line=line.slice(0,-1);result.push(line);line=c}}}}else{line+=ch}}result.push(line)}return result;}
+function drawText(ctx,o){ctx.save();ctx.beginPath();ctx.rect(o.x,o.y,o.w,o.h);ctx.clip();ctx.textBaseline='top';ctx.textAlign=o.align||'left';ctx.fillStyle=o.color||'#18304d';ctx.font=`${o.bold?'750':'400'} ${o.size||48}px system-ui,-apple-system,"Noto Sans TC","Microsoft JhengHei",sans-serif`;
+let textX=o.align==='center'?o.x+o.w/2:o.align==='right'?o.x+o.w:o.x;
+let lines=splitLines(ctx,o.text,o.w);let lh=(o.size||48)*1.25;
+lines.forEach((line,i)=>{if(i*lh+lh>o.h+lh*.35)return;ctx.fillText(line,textX,o.y+i*lh)});ctx.restore();}
+function renderSlide(ctx,s,editing=false,scale=1){ctx.clearRect(0,0,W,H);ctx.fillStyle=s.bg||'#ffffff';ctx.fillRect(0,0,W,H);for(const o of s.objects){if(o.type==='text')drawText(ctx,o);else if(o.type==='placeholder')drawPlace(ctx,o);else if(o.type==='shape'){ctx.fillStyle=o.color||'#64a7c7';ctx.globalAlpha=o.opacity??1;ctx.fillRect(o.x,o.y,o.w,o.h);ctx.globalAlpha=1}else if(o.type==='image'){let img=getImage(o.src);if(img&&img.width>0){ctx.save();ctx.beginPath();ctx.rect(o.x,o.y,o.w,o.h);ctx.clip();fitCover(ctx,img,o.x,o.y,o.w,o.h);ctx.restore()}else{ctx.fillStyle='#c6d8e5';ctx.fillRect(o.x,o.y,o.w,o.h)}}}
+ if(editing&&selected){let o=s.objects.find(x=>x.id===selected);if(o){ctx.save();ctx.strokeStyle='#0e87e7';ctx.lineWidth=3/scale;ctx.setLineDash([9/scale,7/scale]);ctx.strokeRect(o.x,o.y,o.w,o.h);ctx.setLineDash([]);for(const p of corners(o)){ctx.beginPath();ctx.arc(p.x,p.y,7/scale,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=2.4/scale;ctx.stroke();}ctx.restore()}}}
+function draw(){const rect=stage.getBoundingClientRect();renderSlide(c,getSlide(),true,rect.width/W||1);$('stageCount').textContent=`第 ${active+1} / ${project.slides.length} 頁`;}
+function renderFilmstrip(){const strip=$('filmstrip');strip.replaceChildren();project.slides.forEach((s,i)=>{const root=document.createElement('div');root.className='slideitem';const b=document.createElement('button');b.className='thumbbutton'+(active===i?' active':'');b.title=`第 ${i+1} 頁`;b.setAttribute('aria-label',`編輯第 ${i+1} 頁`);b.onclick=()=>{active=i;selected=null;draw();renderFilmstrip();renderInspector()};const cv=document.createElement('canvas');cv.width=320;cv.height=180;const g=cv.getContext('2d');g.scale(.25,.25);renderSlide(g,s,false);b.append(cv);const label=document.createElement('div');label.className='thumblabel';label.textContent=`第 ${i+1} 頁`;root.append(b,label);strip.append(root)});let add=document.createElement('button');add.className='addslide';add.disabled=project.slides.length>=MAX_SLIDES;add.innerHTML='<strong>＋</strong>新增一頁';add.onclick=()=>showModal('layoutModal');strip.append(add);$('deckCount').textContent=`共 ${project.slides.length} / ${MAX_SLIDES} 頁`;}
+function corners(o){return[{x:o.x,y:o.y,side:'tl'},{x:o.x+o.w,y:o.y,side:'tr'},{x:o.x+o.w,y:o.y+o.h,side:'br'},{x:o.x,y:o.y+o.h,side:'bl'}]}
+function point(ev){const r=stage.getBoundingClientRect();return{x:(ev.clientX-r.left)/r.width*W,y:(ev.clientY-r.top)/r.height*H,scale:r.width/W}}
+function hit(p){const objects=getSlide().objects;for(let i=objects.length-1;i>=0;i--){let o=objects[i];if(p.x>=o.x&&p.x<=o.x+o.w&&p.y>=o.y&&p.y<=o.y+o.h)return o}return null}
+function hitHandle(p,o){if(!o)return null;let radius=22/p.scale;return corners(o).find(q=>Math.hypot(q.x-p.x,q.y-p.y)<radius)?.side||null}
+function updateResize(o,base,side,dx,dy){const minW=o.type==='text'?130:70,minH=o.type==='text'?65:55;let l=base.x,t=base.y,r=base.x+base.w,b=base.y+base.h;if(side.includes('l'))l=clamp(base.x+dx,0,r-minW);else r=clamp(base.x+base.w+dx,l+minW,W);if(side.includes('t'))t=clamp(base.y+dy,0,b-minH);else b=clamp(base.y+base.h+dy,t+minH,H);o.x=Math.round(l);o.y=Math.round(t);o.w=Math.round(r-l);o.h=Math.round(b-t)}
+stage.addEventListener('pointerdown',ev=>{if(ev.button!==0&&ev.pointerType==='mouse')return;const p=point(ev),before=getObj(),side=hitHandle(p,before);let o=side?before:hit(p);if(!o){selected=null;draw();renderInspector();return}selected=o.id;drag={id:o.id,p,base:clone(o),side:side||null,moved:false};stage.setPointerCapture(ev.pointerId);draw();renderInspector();ev.preventDefault()});
+stage.addEventListener('pointermove',ev=>{if(!drag)return;const p=point(ev),o=getObj();if(!o)return;let dx=p.x-drag.p.x,dy=p.y-drag.p.y;if(Math.abs(dx)>4||Math.abs(dy)>4)drag.moved=true;if(drag.side)updateResize(o,drag.base,drag.side,dx,dy);else{o.x=Math.round(clamp(drag.base.x+dx,0,W-o.w));o.y=Math.round(clamp(drag.base.y+dy,0,H-o.h));}draw();ev.preventDefault()});
+function endDrag(ev){if(!drag)return;const moved=drag.moved;const id=drag.id;const item=drag.base;drag=null;if(moved){let o=getObj();if(o){const after=clone(o);Object.assign(o,item);snapshot();Object.assign(o,after);commit();}}else{if(lastTapId===id&&Date.now()-lastTapTime<420&&getObj()?.type==='text'){let ta=$('textContent');if(ta){ta.focus();ta.select();ta.scrollIntoView({behavior:'smooth',block:'center'})}}lastTapId=id;lastTapTime=Date.now()}draw();renderInspector();}
+stage.addEventListener('pointerup',endDrag);stage.addEventListener('pointercancel',endDrag);
+function editorField(label,node){const div=document.createElement('div');const l=document.createElement('label');l.className='fieldlabel';l.textContent=label;div.append(l,node);return div}
+function button(label,cb,classes='btn small'){let b=document.createElement('button');b.className=classes;b.textContent=label;b.onclick=cb;return b}
+function btnRow(...children){const r=document.createElement('div');r.className='buttonrow';children.forEach(v=>r.append(v));return r}
+function nativeColor(value,onChange){const n=document.createElement('input');n.type='color';n.className='colorinput';n.value=value||'#222222';n.oninput=e=>onChange(e.target.value);return n}
+function liveChange(mut){mut();draw();renderFilmstrip();scheduleSave();}
+let editStart=null;
+function makeRange(val,min,max,step,onInput){const row=document.createElement('div');row.className='rangerow';const r=document.createElement('input');r.type='range';r.min=min;r.max=max;r.step=step;r.value=val;const num=document.createElement('input');num.type='number';num.className='numfield';num.min=min;num.max=max;num.value=val;r.addEventListener('pointerdown',()=>editStart??=clone({project,active}));r.oninput=e=>{num.value=e.target.value;onInput(Number(e.target.value))};r.addEventListener('change',()=>{if(editStart){history.push(editStart);if(history.length>18)history.shift();future=[];editStart=null;updateUndo()}});num.onchange=()=>{const v=clamp(Number(num.value)||min,min,max);transact(()=>onInput(v));r.value=v};row.append(r,num);return row}
+function selectChange(commitFn){transact(commitFn);renderInspector()}
+function renderInspector(){const area=$('panelFields');area.replaceChildren();const o=getObj();if(!o){$('panelTitle').textContent='投影片設定';$('panelChip').textContent='整張投影片';const note=document.createElement('div');note.className='info';note.textContent='先選一個版型，再加入文字、圖片或色塊。點選畫布中的物件，就能在這裡修改。';area.append(note);
+ area.append(btnRow(button('＋ 新增投影片',()=>showModal('layoutModal')),button('⧉ 複製這一頁',duplicateSlide)));
+ area.append(btnRow(button('← 往前移',()=>moveSlide(-1)),button('往後移 →',()=>moveSlide(1))));
+ area.append(btnRow(button('🗑 刪除此頁',removeSlide,'btn small danger'),button('◉ 背景顏色',()=>showModal('bgModal'))));
+ const sep=document.createElement('div');sep.className='hr';area.append(sep);
+ area.append(btnRow(button('⬇ 匯出本頁 PNG',exportPng),button('⬇ 備份 JSON',exportJson)));
+ area.append(btnRow(button('↥ 載入備份 JSON',()=>{$('jsonInput').click()}),button('？ 使用說明',()=>showModal('helpModal'))));
+ let more=document.createElement('p');more.className='note';more.textContent='作品會嘗試自動保存在目前瀏覽器，不會自動上傳到老師的 Google 雲端硬碟。';area.append(more);return;}
+ $('panelTitle').textContent='物件設定';$('panelChip').textContent=o.type==='text'?'文字方塊':o.type==='image'?'圖片':o.type==='shape'?'色塊':'圖片佔位區';
+ if(o.type==='text'){
+  let input=document.createElement('textarea');input.className='textarea';input.id='textContent';input.value=o.text;input.placeholder='輸入想讓觀眾記住的文字';input.onfocus=()=>{editStart??=clone({project,active})};input.oninput=()=>liveChange(()=>o.text=input.value);input.onblur=()=>{if(editStart){history.push(editStart);if(history.length>18)history.shift();future=[];editStart=null;updateUndo()}};area.append(editorField('文字內容',input));
+  area.append(editorField('字體大小（24–140）',makeRange(o.size,24,140,1,v=>{o.size=v;draw();renderFilmstrip();scheduleSave()})));
+  let cr=document.createElement('div');cr.className='colorrow';cr.append(nativeColor(o.color,v=>liveChange(()=>o.color=v)));let b=button(o.bold?'粗體 ✓':'粗體',()=>selectChange(()=>o.bold=!o.bold));cr.append(b);area.append(editorField('文字顏色與粗細',cr));
+  let alignRow=btnRow(...[['left','靠左'],['center','置中'],['right','靠右']].map(([k,label])=>button(label,()=>selectChange(()=>o.align=k),'btn small'+(o.align===k?' primary':''))));area.append(editorField('文字對齊',alignRow));
+ } else if(o.type==='shape'){
+  let cr=document.createElement('div');cr.className='colorrow';cr.append(nativeColor(o.color,v=>liveChange(()=>o.color=v)));area.append(editorField('色塊顏色',cr));
+ }else{
+  area.append(btnRow(button(o.type==='placeholder'?'上傳圖片到此區':'更換圖片',()=>pickImage('replace'))));
+  if(o.type==='image')area.append(btnRow(button('設為滿版圖片',()=>selectChange(()=>{o.x=0;o.y=0;o.w=W;o.h=H;bringBack(o.id)}))));
+  const t=document.createElement('p');t.className='note';t.textContent='圖片會自動填滿框線，超出的部分會裁切；可拖動四角調整圖片框的大小。';area.append(t);
+ }
+ const sep=document.createElement('div');sep.className='hr';area.append(sep);
+ area.append(btnRow(button('↑ 移到最上層',()=>selectChange(()=>bringFront(o.id))),button('↓ 移到最下層',()=>selectChange(()=>bringBack(o.id)))));
+ area.append(btnRow(button('⧉ 複製物件',()=>selectChange(()=>{let obj=clone(o);obj.id=uid();obj.x=clamp(o.x+35,0,W-o.w);obj.y=clamp(o.y+30,0,H-o.h);getSlide().objects.push(obj);selected=obj.id})),button('🗑 刪除物件',()=>selectChange(()=>{getSlide().objects=getSlide().objects.filter(x=>x.id!==o.id);selected=null}),'btn small danger')));
+ area.append(btnRow(button('完成・取消選取',()=>{selected=null;draw();renderInspector()})));
+ }
+function bringFront(id){let list=getSlide().objects;let i=list.findIndex(x=>x.id===id);if(i>=0)list.push(...list.splice(i,1));}
+function bringBack(id){let list=getSlide().objects;let i=list.findIndex(x=>x.id===id);if(i>=0)list.unshift(...list.splice(i,1));}
+function addNewSlide(t='blank'){if(project.slides.length>=MAX_SLIDES){toast('每份最多 10 頁');return}transact(()=>{project.slides.splice(active+1,0,slideTemplate(t));active++;selected=null});renderInspector();toast('已新增一張投影片')}
+function duplicateSlide(){if(project.slides.length>=MAX_SLIDES){toast('最多 10 頁，無法複製');return}transact(()=>{let s=clone(getSlide());s.id=uid();s.objects.forEach(o=>o.id=uid());project.slides.splice(active+1,0,s);active++;selected=null});renderInspector();toast('已複製投影片')}
+function removeSlide(){if(project.slides.length===1){toast('至少要保留一張投影片');return}if(!confirm(`確定刪除第 ${active+1} 頁嗎？`))return;transact(()=>{project.slides.splice(active,1);active=clamp(active,0,project.slides.length-1);selected=null});renderInspector()}
+function moveSlide(dir){let next=active+dir;if(next<0||next>=project.slides.length){toast('已經是最前／最後一頁');return}transact(()=>{let [slide]=project.slides.splice(active,1);project.slides.splice(next,0,slide);active=next});renderInspector()}
+function addText(){transact(()=>{let t=makeText('點這裡修改文字',150,240,980,152,66,getSlide().bg==='#11243A'||getSlide().bg==='#14273F'||getSlide().bg==='#18314D'?'#FFFFFF':'#193651');getSlide().objects.push(t);selected=t.id});renderInspector();let ta=$('textContent');if(ta){ta.focus();ta.select()}}
+function addShape(){transact(()=>{let o={id:uid(),type:'shape',x:340,y:290,w:600,h:160,color:'#74B4C9',opacity:1};getSlide().objects.push(o);selected=o.id});renderInspector();}
+let imageMode='add';function pickImage(mode){imageMode=mode;$('imageInput').value='';$('imageInput').click()}
+function compressFile(file){return new Promise((resolve,reject)=>{const url=URL.createObjectURL(file);let im=new Image();im.onload=()=>{URL.revokeObjectURL(url);const lim=1800,ratio=Math.min(1,lim/Math.max(im.naturalWidth,im.naturalHeight));const cv=document.createElement('canvas');cv.width=Math.max(1,Math.round(im.naturalWidth*ratio));cv.height=Math.max(1,Math.round(im.naturalHeight*ratio));let x=cv.getContext('2d');x.fillStyle='#ffffff';x.fillRect(0,0,cv.width,cv.height);x.drawImage(im,0,0,cv.width,cv.height);resolve(cv.toDataURL('image/jpeg',0.84))};im.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('圖片無法開啟'))};im.src=url})}
+$('imageInput').onchange=async ev=>{const file=ev.target.files?.[0];if(!file)return;if(!file.type.startsWith('image/')){toast('請選擇圖片檔案');return}try{toast('正在處理圖片…');let src=await compressFile(file);transact(()=>{if(imageMode==='replace'&&getObj()){let o=getObj();o.type='image';o.src=src}else{let o={id:uid(),type:'image',x:W*.18,y:H*.14,w:W*.64,h:H*.72,src};getSlide().objects.push(o);selected=o.id}});renderInspector();toast('圖片已加入，可拖曳與縮放')}catch(err){toast('加入圖片失敗：'+err.message)}};
+function showModal(id){$(id).classList.add('visible');if(id==='previewModal'){previewIndex=active;drawPreview()}if(id==='bgModal')renderSwatches()}
+function closeModal(id){$(id).classList.remove('visible')}
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',ev=>{if(ev.target===m)closeModal(m.id)}));
+function renderSwatches(){const grid=$('swatchGrid');grid.replaceChildren();bgColors.forEach(hex=>{let b=document.createElement('button');b.className='swatch'+(getSlide().bg.toLowerCase()===hex.toLowerCase()?' active':'');b.style.background=hex;b.title=hex;b.setAttribute('aria-label',`選擇背景 ${hex}`);b.onclick=()=>{transact(()=>getSlide().bg=hex);renderSwatches();closeModal('bgModal')};grid.append(b)})}
+function renderLayouts(){const cards=$('layoutCards');templates.forEach(([key,title,desc])=>{let s=slideTemplate(key);let b=document.createElement('button');b.className='layoutcard';let cv=document.createElement('canvas');cv.width=320;cv.height=180;let ctx=cv.getContext('2d');ctx.scale(.25,.25);renderSlide(ctx,s,false);let t=document.createElement('span');t.className='cardtitle';t.textContent=title;let d=document.createElement('span');d.className='cardsub';d.textContent=desc;b.append(cv,t,d);b.onclick=()=>{closeModal('layoutModal');addNewSlide(key)};cards.append(b)})}
+function drawPreview(){let ctx=previewCanvas.getContext('2d');renderSlide(ctx,project.slides[previewIndex],false);$('previewLabel').textContent=`${previewIndex+1} / ${project.slides.length}`;$('prevPreview').disabled=previewIndex===0;$('nextPreview').disabled=previewIndex===project.slides.length-1;}
+$('prevPreview').onclick=()=>{previewIndex=clamp(previewIndex-1,0,project.slides.length-1);drawPreview()};$('nextPreview').onclick=()=>{previewIndex=clamp(previewIndex+1,0,project.slides.length-1);drawPreview()};
+window.addEventListener('keydown',ev=>{if(ev.key==='Escape')document.querySelectorAll('.modal.visible').forEach(m=>closeModal(m.id));if($('previewModal').classList.contains('visible')){if(ev.key==='ArrowRight')$('nextPreview').click();if(ev.key==='ArrowLeft')$('prevPreview').click();return}if(['INPUT','TEXTAREA'].includes(document.activeElement?.tagName))return;if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='z'){ev.preventDefault();ev.shiftKey?redo():undo()}if(ev.key==='Delete'&&selected){transact(()=>{getSlide().objects=getSlide().objects.filter(o=>o.id!==selected);selected=null});renderInspector()}});
+async function preloadSlideImages(s){
+ await Promise.all(s.objects.filter(o=>o.type==='image'&&o.src).map(o=>new Promise(resolve=>{
+  const current=getImage(o.src)||imageCache.get(o.src);
+  if(!current||current.complete){resolve();return}
+  current.addEventListener('load',resolve,{once:true});
+  current.addEventListener('error',resolve,{once:true});
+ })));
+}
+function makeSlideCanvas(s){const cv=document.createElement('canvas');cv.width=W;cv.height=H;renderSlide(cv.getContext('2d'),s,false);return cv}
+function safeFilename(t){return String(t||'簡報').replace(/[\\/:*?"<>|\u0000-\u001f]/g,'_').trim().slice(0,55)||'簡報'}
+function downloadBlob(blob,name){let url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)}
+async function exportPng(){await preloadSlideImages(getSlide());const cv=makeSlideCanvas(getSlide());cv.toBlob(blob=>{if(!blob){toast('PNG 匯出失敗');return}downloadBlob(blob,`${safeFilename(project.title)}_第${active+1}頁.png`);toast('已匯出本頁 PNG')},'image/png')}
+function binaryJPEG(dataurl){const raw=atob(dataurl.slice(dataurl.indexOf(',')+1));const bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);return bytes}
+function buildPdf(jpgs){const enc=new TextEncoder(),chunks=[],offsets=[0];let total=0;
+ const append=x=>{const b=typeof x==='string'?enc.encode(x):x;chunks.push(b);total+=b.length};
+ const obj=(id,contents)=>{offsets[id]=total;append(`${id} 0 obj\n`);contents();append('endobj\n')};
+ append('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+ obj(1,()=>append('<< /Type /Catalog /Pages 2 0 R >>\n'));
+ obj(2,()=>append(`<< /Type /Pages /Kids [${jpgs.map((_,i)=>`${3+i*3} 0 R`).join(' ')}] /Count ${jpgs.length} >>\n`));
+ jpgs.forEach((jpg,i)=>{
+ const page=3+i*3,img=page+1,content=page+2;
+ obj(page,()=>append(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 960 540] /Resources << /XObject << /Im0 ${img} 0 R >> >> /Contents ${content} 0 R >>\n`));
+ obj(img,()=>{append(`<< /Type /XObject /Subtype /Image /Width ${W} /Height ${H} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpg.length} >>\nstream\n`);append(jpg);append('\nendstream\n')});
+ const commands='q\n960 0 0 540 0 0 cm\n/Im0 Do\nQ\n';
+ obj(content,()=>{append(`<< /Length ${enc.encode(commands).length} >>\nstream\n`);append(commands);append('endstream\n')});
+ });
+ const start=total;append(`xref\n0 ${3+jpgs.length*3}\n0000000000 65535 f \n`);
+ for(let i=1;i<3+jpgs.length*3;i++)append(`${String(offsets[i]).padStart(10,'0')} 00000 n \n`);
+ append(`trailer\n<< /Size ${3+jpgs.length*3} /Root 1 0 R >>\nstartxref\n${start}\n%%EOF`);
+ return new Blob(chunks,{type:'application/pdf'});
+}
+async function exportPdf(){let btns=[$('exportPdfTop'),$('exportPdfBottom')];btns.forEach(b=>b.disabled=true);toast('正在合併整份簡報…');try{const imgs=[];for(const s of project.slides){await preloadSlideImages(s);const cv=makeSlideCanvas(s);imgs.push(binaryJPEG(cv.toDataURL('image/jpeg',0.90)));await new Promise(resolve=>requestAnimationFrame(resolve))}const pdf=buildPdf(imgs);downloadBlob(pdf,`${safeFilename(project.title)}.pdf`);toast(`已匯出 ${project.slides.length} 頁 PDF`)}catch(err){console.error(err);toast('PDF 匯出失敗：'+err.message)}finally{btns.forEach(b=>b.disabled=false)}}
+function exportJson(){const blob=new Blob([JSON.stringify({version:1,project},null,0)],{type:'application/json;charset=utf-8'});downloadBlob(blob,`${safeFilename(project.title)}_可編輯備份.json`);toast('已匯出可編輯備份')}
+function validateProject(data){if(!data||!Array.isArray(data.slides)||data.slides.length<1||data.slides.length>MAX_SLIDES)throw Error('投影片頁數格式不正確');for(const s of data.slides){if(!Array.isArray(s.objects)||s.objects.length>200)throw Error('物件數量不正確');for(const o of s.objects){if(!['text','image','shape','placeholder'].includes(o.type))throw Error('不支援的物件格式')}}}
+$('jsonInput').onchange=async ev=>{let file=ev.target.files?.[0];if(!file)return;try{let data=JSON.parse(await file.text());validateProject(data.project);if(!confirm('載入備份將取代目前的作品，確定嗎？'))return;snapshot();project=data.project;active=0;selected=null;syncProject();toast('備份已載入')}catch(e){toast('備份載入失敗：'+e.message)}};
+function syncProject(){$('projectName').value=project.title;draw();renderFilmstrip();renderInspector();scheduleSave();}
+const DB_NAME='slidelab_classroom_v1';
+function openDB(){return new Promise((resolve,reject)=>{if(!('indexedDB'in window)){reject(Error('IndexedDB unavailable'));return}const request=indexedDB.open(DB_NAME,1);request.onupgradeneeded=()=>{request.result.createObjectStore('state',{keyPath:'id'})};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error)});}
+function loadFromDB(){return new Promise((resolve,reject)=>{const tr=db.transaction('state','readonly');const req=tr.objectStore('state').get('current');req.onsuccess=()=>resolve(req.result?.data||null);req.onerror=()=>reject(req.error)})}
+function saveToDB(data){return new Promise((resolve,reject)=>{const tr=db.transaction('state','readwrite');tr.objectStore('state').put({id:'current',data,at:Date.now()});tr.oncomplete=resolve;tr.onerror=()=>reject(tr.error)})}
+function scheduleSave(){$('saveStatus').textContent='尚未儲存…';clearTimeout(saveTimeout);saveTimeout=setTimeout(async()=>{try{const data=JSON.stringify({project,active});if(db)await saveToDB(data);else{localStorage.setItem(DB_NAME,data)}$('saveStatus').textContent='✓ 已暫存於本機'}catch(err){console.warn('Autosave:',err);$('saveStatus').textContent='⚠ 暫存失敗';toast('本機暫存失敗，請使用備份 JSON')}} ,850)}
+async function init(){try{db=await openDB();const prev=await loadFromDB();if(prev){let obj=JSON.parse(prev);validateProject(obj.project);project=obj.project;active=clamp(obj.active||0,0,project.slides.length-1)}}catch(e){console.warn('local DB not available',e);try{let prev=localStorage.getItem(DB_NAME);if(prev){let obj=JSON.parse(prev);validateProject(obj.project);project=obj.project;active=clamp(obj.active||0,0,project.slides.length-1)}}catch(_){} }
+ $('projectName').value=project.title;renderLayouts();syncProject();updateUndo();}
+$('projectName').onchange=e=>transact(()=>project.title=e.target.value.trim()||'我的簡報');
+$('addText').onclick=addText;$('addImage').onclick=()=>pickImage('add');$('addShape').onclick=addShape;$('chooseLayout').onclick=()=>showModal('layoutModal');$('chooseBg').onclick=()=>showModal('bgModal');$('undoBtn').onclick=undo;$('redoBtn').onclick=redo;$('previewBtn').onclick=()=>showModal('previewModal');$('helpBtn').onclick=()=>showModal('helpModal');$('exportPdfTop').onclick=exportPdf;$('exportPdfBottom').onclick=exportPdf;
+window.addEventListener('resize',draw);init();
+})();
+</script>
+</body>
+</html>
